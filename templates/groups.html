@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groups Dashboard</title>
+    <style>
+        body {
+            background-image: url('/static/ShadowSec%20Main%20Logo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin: 20px 0;
+        }
+        .groups-container {
+            width: 80%;
+            margin-top: 20px;
+        }
+        .group-card {
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .group-card h3 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: #00ff00;
+        }
+        .group-card p {
+            margin: 5px 0 10px;
+            color: white;
+        }
+        .group-card .actions {
+            margin-top: 10px;
+        }
+        .group-card button {
+            padding: 10px 15px;
+            background-color: #00ff00;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .group-card button:hover {
+            background-color: white;
+        }
+        form {
+            width: 80%;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #00ff00;
+        }
+        input, textarea, button {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+        }
+        button {
+            background-color: #00ff00;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: white;
+        }
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #00ff00;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .settings-dropdown {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+        .settings-dropdown a {
+            display: block;
+            color: #00ff00;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+        .settings-dropdown a:hover {
+            text-decoration: underline;
+            color: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-icon" onclick="toggleSettings()">💀</div>
+    <div id="settings-dropdown" class="settings-dropdown">
+        <a href="{{ url_for('main_hub') }}">Main Hub</a>
+        <a href="{{ url_for('profile') }}">Edit Profile</a>
+        <a href="{{ url_for('groups') }}">Groups Dashboard</a>
+        {% if session.get('role') == 'Admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <h1>Groups Dashboard</h1>
+
+    <div class="groups-container">
+        {% for group in groups %}
+        <div class="group-card">
+            <h3>{{ group.name }}</h3>
+            <p>{{ group.description }}</p>
+            <div class="actions">
+                <form method="POST" action="{{ url_for('join_group', group_id=group.id) }}">
+                    <button type="submit">Join Group</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if session.get("role") in ["Admin", "Moderator"] %}
+    <form method="POST" action="{{ url_for('groups') }}">
+        <h2>Create New Group</h2>
+        <input type="text" name="name" placeholder="Group Name" required>
+        <textarea name="description" placeholder="Group Description" rows="3"></textarea>
+        <button type="submit">Create Group</button>
+    </form>
+    {% endif %}
+
+    <script>
+        const settingsDropdown = document.getElementById('settings-dropdown');
+
+        function toggleSettings() {
+            if (settingsDropdown.style.display === "none" || settingsDropdown.style.display === "") {
+                settingsDropdown.style.display = "block";
+            } else {
+                settingsDropdown.style.display = "none";
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.settings-icon') && !event.target.closest('#settings-dropdown')) {
+                settingsDropdown.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

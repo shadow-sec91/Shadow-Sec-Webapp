@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow-Sec Register</title>
+    <style>
+        body {
+            background-image: url('/static/ShadowSec%20Main%20Logo.png'); /* Background logo */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black; /* Fallback color */
+            color: white;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .register-container {
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .register-container h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .register-container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .register-container input {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .register-container button {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: white;
+            color: black;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .register-container button:hover {
+            background-color: grey;
+            color: white;
+        }
+        .login-link {
+            margin-top: 15px;
+            color: white;
+            font-size: 14px;
+        }
+        .login-link a {
+            color: #00ff00; /* Green link */
+            text-decoration: none;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>Create Your Account</h1>
+        <form action="/register" method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Register</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="/">Login here</a>
+        </div>
+    </div>
+</body>
+</html>

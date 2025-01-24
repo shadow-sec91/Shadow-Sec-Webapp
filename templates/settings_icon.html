@@ -1,0 +1,27 @@
+<div class="settings-icon" onclick="toggleSettings()">💀</div>
+<div id="settings-dropdown" class="settings-dropdown">
+    <a href="{{ url_for('main_hub') }}">Main Hub</a>
+    <a href="{{ url_for('profile') }}">Edit Profile</a>
+    <a href="{{ url_for('groups') }}">Groups Dashboard</a>
+    {% if session.get('role') == 'Admin' %}
+    <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+    {% endif %}
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+<script>
+    const settingsDropdown = document.getElementById('settings-dropdown');
+
+    function toggleSettings() {
+        if (settingsDropdown.style.display === "none" || settingsDropdown.style.display === "") {
+            settingsDropdown.style.display = "block";
+        } else {
+            settingsDropdown.style.display = "none";
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.settings-icon') && !event.target.closest('#settings-dropdown')) {
+            settingsDropdown.style.display = "none";
+        }
+    });
+</script>

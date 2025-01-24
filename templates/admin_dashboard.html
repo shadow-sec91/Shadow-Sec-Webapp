@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            background-image: url('/static/ShadowSec%20Main%20Logo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin: 20px 0;
+        }
+        .dashboard-section {
+            width: 80%;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        .dashboard-section h2 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+        table {
+            width: 100%;
+            margin: 10px 0;
+            border-collapse: collapse;
+            background: rgba(0, 0, 0, 0.9);
+        }
+        table, th, td {
+            border: 1px solid #00ff00;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #00ff00;
+            color: black;
+        }
+        button {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #00ff00;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: white;
+        }
+        a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #00ff00;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .settings-dropdown {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+        .settings-dropdown a {
+            display: block;
+            color: #00ff00;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+        .settings-dropdown a:hover {
+            text-decoration: underline;
+            color: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-icon" onclick="toggleSettings()">💀</div>
+    <div id="settings-dropdown" class="settings-dropdown">
+        <a href="{{ url_for('main_hub') }}">Main Hub</a>
+        <a href="{{ url_for('profile') }}">Edit Profile</a>
+        <a href="{{ url_for('groups') }}">Groups Dashboard</a>
+        {% if session.get('role') == 'Admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <h1>Admin Dashboard</h1>
+
+    <!-- User Management Section -->
+    <div class="dashboard-section">
+        <h2>Manage Users</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('update_user_role') }}">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <select name="role">
+                                <option value="Admin" {% if user.role == 'Admin' %}selected{% endif %}>Admin</option>
+                                <option value="Moderator" {% if user.role == 'Moderator' %}selected{% endif %}>Moderator</option>
+                                <option value="Member" {% if user.role == 'Member' %}selected{% endif %}>Member</option>
+                            </select>
+                            <button type="submit">Update</button>
+                        </form>
+                        
+                    </td>
+                    <td>
+                        <form method="POST" action="/delete_user/{{ user.id }}" style="display: inline-block;">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Group Management Section -->
+    <div class="dashboard-section">
+        <h2>Manage Groups</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                <tr>
+                    <td>{{ group.name }}</td>
+                    <td>{{ group.description }}</td>
+                    <td>
+                        <form method="POST" action="/edit_group" style="display: inline-block;">
+                            <input type="hidden" name="group_id" value="{{ group.id }}">
+                            <input type="text" name="name" value="{{ group.name }}" required>
+                            <input type="text" name="description" value="{{ group.description }}">
+                            <button type="submit">Edit</button>
+                        </form>
+                        <form method="POST" action="/delete_group/{{ group.id }}" style="display: inline-block;">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const settingsDropdown = document.getElementById('settings-dropdown');
+
+        function toggleSettings() {
+            if (settingsDropdown.style.display === "none" || settingsDropdown.style.display === "") {
+                settingsDropdown.style.display = "block";
+            } else {
+                settingsDropdown.style.display = "none";
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.settings-icon') && !event.target.closest('#settings-dropdown')) {
+                settingsDropdown.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

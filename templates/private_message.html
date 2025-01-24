@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Private Messaging</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: black;
+            color: #00ff00;
+        }
+        .message-container {
+            width: 60%;
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+        }
+        .message {
+            padding: 10px;
+            border-bottom: 1px solid #00ff00;
+        }
+        .message:last-child {
+            border-bottom: none;
+        }
+        .sender {
+            font-weight: bold;
+        }
+        .file-link {
+            color: #00cc00;
+            text-decoration: none;
+        }
+        .send-message-form {
+            margin-top: 20px;
+        }
+        .send-message-form textarea,
+        .send-message-form input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+        }
+        .send-message-form button {
+            padding: 10px 20px;
+            background: #00ff00;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .send-message-form button:hover {
+            background: #00cc00;
+        }
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #00ff00;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .settings-dropdown {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+        .settings-dropdown a {
+            display: block;
+            color: #00ff00;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+        .settings-dropdown a:hover {
+            text-decoration: underline;
+            color: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="message-container">
+        <h2>Messaging with {{ recipient.username }}</h2>
+        <div>
+            {% for message in messages %}
+            <div class="message">
+                <span class="sender">{{ message.username }}</span>: {{ message.content }}
+                {% if message.file_path %}
+                <br>
+                <a href="{{ url_for('uploaded_file', filename=message.file_path.split('/')[-1]) }}" target="_blank" class="file-link">
+                    Download Attachment
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <form class="send-message-form" method="POST" enctype="multipart/form-data">
+            <textarea name="message" rows="3" placeholder="Type your message here..." required></textarea>
+            <input type="file" name="file">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <div class="settings-icon" onclick="toggleSettings()">💀</div>
+    <div id="settings-dropdown" class="settings-dropdown">
+        <a href="{{ url_for('main_hub') }}">Main Hub</a>
+        <a href="{{ url_for('profile') }}">Edit Profile</a>
+        <a href="{{ url_for('groups') }}">Groups Dashboard</a>
+        {% if session.get('role') == 'Admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <script>
+        const settingsDropdown = document.getElementById('settings-dropdown');
+
+        function toggleSettings() {
+            if (settingsDropdown.style.display === "none" || settingsDropdown.style.display === "") {
+                settingsDropdown.style.display = "block";
+            } else {
+                settingsDropdown.style.display = "none";
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.settings-icon') && !event.target.closest('#settings-dropdown')) {
+                settingsDropdown.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Hub</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-image: url('/static/ShadowSec%20Main%20Logo.png');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 20%;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar h2 {
+            color: #00ff00;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .user-list, .channel-list {
+            margin: 10px 0;
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .user-list ul, .channel-list ul {
+            list-style: none;
+            padding: 0;
+        }
+        .user-list li {
+            margin: 5px 0;
+            padding: 5px;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            position: relative;
+            cursor: pointer;
+        }
+        .user-list li:hover {
+            background: #00ff00;
+            color: black;
+        }
+        .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            z-index: 10;
+        }
+        .user-dropdown a {
+            display: block;
+            padding: 5px 10px;
+            color: #00ff00;
+            text-decoration: none;
+            text-align: left;
+        }
+        .user-dropdown a:hover {
+            background: #00ff00;
+            color: black;
+        }
+        .channel-list li {
+            margin: 10px 0;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+        }
+        .channel-list ul li a {
+            color: #00ff00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .channel-list ul li a:hover {
+            text-decoration: underline;
+            color: #00cc00;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        h1 {
+            color: #00ff00;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        p {
+            color: white;
+            font-size: 1.2rem;
+        }
+        .settings-icon {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #00ff00;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .settings-icon:hover {
+            transform: scale(1.1);
+        }
+        .settings-dropdown {
+            position: fixed;
+            bottom: 60px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+        }
+        .settings-dropdown a {
+            display: block;
+            color: #00ff00;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+        .settings-dropdown a:hover {
+            text-decoration: underline;
+            color: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Users</h2>
+        <div class="user-list">
+            <ul>
+                {% for user in users %}
+                <li onclick="toggleUserDropdown(this)">
+                    <span>{{ user.username }}</span>
+                    <span class="status {{ user.status | lower }}" title="{{ user.status }}">●</span>
+                    <div class="user-dropdown">
+                        <a href="/user/{{ user.username }}">View Profile</a>
+                        <a href="/message/{{ user.username }}">Message</a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <h2>Channels</h2>
+        <div class="channel-list">
+            <ul>
+                <li><a href="/main_hub/general">💬 General</a></li>
+                <li><a href="/main_hub/development">🔨 Development</a></li>
+                <li><a href="/main_hub/operations">💀 Operations</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main-content">
+        <div class="settings-icon" onclick="toggleSettings()">💀</div>
+        <div id="settings-dropdown" class="settings-dropdown">
+            <a href="{{ url_for('main_hub') }}">Main Hub</a>
+            <a href="{{ url_for('profile') }}">Edit Profile</a>
+            <a href="{{ url_for('groups') }}">Groups Dashboard</a>
+            {% if session.get('role') == 'Admin' %}
+            <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        <h1>Welcome to the Main Hub</h1>
+        <p>Select a channel to start chatting.</p>
+    </div>
+    <script>
+        function toggleUserDropdown(element) {
+            const dropdown = element.querySelector('.user-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+            document.querySelectorAll('.user-dropdown').forEach(otherDropdown => {
+                if (otherDropdown !== dropdown) {
+                    otherDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        const settingsDropdown = document.getElementById('settings-dropdown');
+
+        function toggleSettings() {
+            settingsDropdown.style.display = settingsDropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.settings-icon') && !event.target.closest('#settings-dropdown')) {
+                settingsDropdown.style.display = "none";
+            }
+            if (!event.target.closest('.user-list li')) {
+                document.querySelectorAll('.user-dropdown').forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

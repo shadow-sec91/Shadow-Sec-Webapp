@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        body {
+            background-image: url('/static/ShadowSec%20Main%20Logo.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin: 20px 0;
+        }
+        form {
+            background: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+            background-color: black;
+            color: white;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #00ff00;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: white;
+        }
+        .profile-pic {
+            display: block;
+            margin: 20px auto;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            max-width: 150px;
+        }
+        .settings-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #00ff00;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .settings-dropdown {
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+        .settings-dropdown a {
+            display: block;
+            color: #00ff00;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+        .settings-dropdown a:hover {
+            text-decoration: underline;
+            color: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-icon" onclick="toggleSettings()">💀</div>
+    <div id="settings-dropdown" class="settings-dropdown">
+        <a href="{{ url_for('main_hub') }}">Main Hub</a>
+        <a href="{{ url_for('profile') }}">Edit Profile</a>
+        <a href="{{ url_for('groups') }}">Groups Dashboard</a>
+        {% if session.get('role') == 'Admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <h1>Your Profile</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="bio">Bio:</label>
+        <textarea name="bio" rows="4">{{ user.bio }}</textarea>
+        <label for="status">Status:</label>
+        <input type="text" name="status" value="{{ user.status }}">
+        <label for="profile_picture">Profile Picture:</label>
+        <input type="file" name="profile_picture" accept="image/*">
+        {% if user.profile_picture %}
+        <img src="{{ url_for('uploaded_file', filename=user.profile_picture.split('/')[-1]) }}" alt="Profile Picture" class="profile-pic">
+        {% endif %}
+        <button type="submit">Update Profile</button>
+    </form>
+
+    <script>
+        const settingsDropdown = document.getElementById('settings-dropdown');
+
+        function toggleSettings() {
+            if (settingsDropdown.style.display === "none" || settingsDropdown.style.display === "") {
+                settingsDropdown.style.display = "block";
+            } else {
+                settingsDropdown.style.display = "none";
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.settings-icon') && !event.target.closest('#settings-dropdown')) {
+                settingsDropdown.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
